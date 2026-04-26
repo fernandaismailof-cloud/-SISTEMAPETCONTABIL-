@@ -39,6 +39,10 @@ export default function App() {
   const [inputText, setInputText] = useState('');
 
   useEffect(() => {
+    if (!auth) {
+      setLoading(false);
+      return;
+    }
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);
@@ -47,7 +51,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (!user) {
+    if (!user || !db) {
       setTransactions([]);
       return;
     }
@@ -128,6 +132,19 @@ export default function App() {
     return (
       <div className="flex h-screen items-center justify-center bg-stone-50">
         <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+      </div>
+    );
+  }
+
+  if (!auth || !db) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-stone-50 px-4 text-center">
+        <div className="max-w-md space-y-4">
+          <h1 className="text-2xl font-bold text-red-600">Erro de Configuração</h1>
+          <p className="text-stone-600">
+            Não foi possível inicializar o Firebase. Verifique se o arquivo <code className="bg-stone-200 px-1 rounded">firebase-applet-config.json</code> está presente e se as configurações são válidas.
+          </p>
+        </div>
       </div>
     );
   }

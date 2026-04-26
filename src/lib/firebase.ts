@@ -3,15 +3,32 @@ import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
-export const auth = getAuth(app);
-export const googleProvider = new GoogleAuthProvider();
+let db: any;
+let auth: any;
+let googleProvider: any;
 
-export const signInWithGoogle = () => signInWithPopup(auth, googleProvider);
+try {
+  const app = initializeApp(firebaseConfig);
+  db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+  auth = getAuth(app);
+  googleProvider = new GoogleAuthProvider();
+} catch (error) {
+  console.error("Erro ao inicializar Firebase. Verifique se o arquivo firebase-applet-config.json está correto.", error);
+}
+
+export { db, auth, googleProvider };
+
+export const signInWithGoogle = () => {
+  if (!auth) {
+    alert("Firebase não inicializado corretamente. Verifique as configurações.");
+    return;
+  }
+  return signInWithPopup(auth, googleProvider);
+};
 
 // Connection test
 async function testConnection() {
+  if (!db) return;
   try {
     await getDocFromServer(doc(db, 'test', 'connection'));
   } catch (error) {
