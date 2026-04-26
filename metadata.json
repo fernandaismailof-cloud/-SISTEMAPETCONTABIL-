@@ -1,0 +1,5 @@
+{
+  "name": "Pet Contábil",
+  "description": "Assistente financeiro veterinário inteligente com suporte a texto, voz e fotos para gestão simplificada de clínicas e profissionais.",
+  "requestFramePermissions": ["microphone", "camera"]
+}
