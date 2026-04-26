@@ -18,12 +18,20 @@ try {
 
 export { db, auth, googleProvider };
 
-export const signInWithGoogle = () => {
+export const signInWithGoogle = async () => {
   if (!auth) {
-    alert("Firebase não inicializado corretamente. Verifique as configurações.");
-    return;
+    const error = "Firebase não inicializado. Verifique as configurações.";
+    console.error(error);
+    throw new Error(error);
   }
-  return signInWithPopup(auth, googleProvider);
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    return result;
+  } catch (error: any) {
+    console.error("Erro no login Google:", error);
+    // Erros comuns: auth/unauthorized-domain ou auth/popup-blocked
+    throw error;
+  }
 };
 
 // Connection test

@@ -37,6 +37,7 @@ export default function App() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [aiLoading, setAiLoading] = useState(false);
   const [inputText, setInputText] = useState('');
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!auth) {
@@ -49,6 +50,22 @@ export default function App() {
     });
     return unsubscribe;
   }, []);
+
+  const handleLogin = async () => {
+    setLoginError(null);
+    try {
+      await signInWithGoogle();
+    } catch (error: any) {
+      if (error.code === 'auth/unauthorized-domain') {
+        const domain = window.location.hostname;
+        setLoginError(`Domínio não autorizado: '${domain}'. Para corrigir, vá ao Console do Firebase > Authentication > Settings > Authorized Domains e adicione este domínio.`);
+      } else if (error.code === 'auth/popup-blocked') {
+        setLoginError("O pop-up de login foi bloqueado pelo seu navegador.");
+      } else {
+        setLoginError(error.message || "Erro ao tentar entrar com Google.");
+      }
+    }
+  };
 
   useEffect(() => {
     if (!user || !db) {
@@ -168,12 +185,22 @@ export default function App() {
           </div>
           
           <button
-            onClick={signInWithGoogle}
+            onClick={handleLogin}
             className="group relative flex w-full items-center justify-center gap-3 rounded-xl border border-stone-200 bg-white p-4 text-lg font-medium text-stone-700 shadow-sm transition-all hover:bg-stone-50 active:scale-[0.98]"
           >
             <img src="https://www.google.com/favicon.ico" className="h-6 w-6" alt="Google" />
             Entrar com Google
           </button>
+
+          {loginError && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="rounded-lg bg-red-50 p-4 text-sm text-red-700 border border-red-100"
+            >
+              {loginError}
+            </motion.div>
+          )}
         </motion.div>
       </div>
     );
